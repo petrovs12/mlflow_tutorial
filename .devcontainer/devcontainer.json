@@ -19,7 +19,8 @@
 		5432,  // PostgreSQL
 		9000,  // Model endpoint
 		6566,  // Feast serving
-		6379   // Redis
+		6379,  // Redis
+		5000   // mlflow
 	],
 	"remoteUser": "vscode",
 	"features": {
