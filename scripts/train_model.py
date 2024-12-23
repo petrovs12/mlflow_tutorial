@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timedelta
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 import pandas as pd
 import numpy as np
@@ -29,14 +29,16 @@ def get_training_data(store: FeatureStore) -> pd.DataFrame:
     
     return training_df
 
-def train_model(training_df: pd.DataFrame) -> RandomForestClassifier:
+def train_model(training_df: pd.DataFrame) -> Tuple[RandomForestClassifier, Dict[str, float], pd.DataFrame, pd.Series]:
     """Train a model using the features"""
     # Prepare features and target
-    X: pd.DataFrame = training_df[[
+    feature_columns = [
         "transaction_amount",
         "num_items",
         "seasonal_factor"
-    ]]
+    ]
+    
+    X: pd.DataFrame = training_df[feature_columns]
     y: pd.Series = training_df["target"]
     
     # Split data
@@ -67,11 +69,11 @@ def main() -> None:
     repo_path: str = os.path.join(os.path.dirname(__file__), "..", "feature_store")
     store: FeatureStore = FeatureStore(repo_path=repo_path)
     
+    # Get training data
+    training_df: pd.DataFrame = get_training_data(store)
+    
     # Start MLflow run
     with mlflow.start_run():
-        # Get training data
-        training_df: pd.DataFrame = get_training_data(store)
-        
         # Train model and get metrics
         model, metrics, X_val, y_val = train_model(training_df)
         
@@ -84,14 +86,32 @@ def main() -> None:
         # Log metrics
         mlflow.log_metrics(metrics)
         
-        # Log model
-        mlflow.sklearn.log_model(model, "model")
+        # Create an input example
+        input_example = pd.DataFrame({
+            "transaction_amount": [100.0],
+            "num_items": [5],
+            "seasonal_factor": [0.5]
+        })
+        
+        # Log model with input example
+        mlflow.sklearn.log_model(
+            model, 
+            "model",
+            input_example=input_example,
+            signature=mlflow.models.infer_signature(
+                input_example,
+                model.predict(input_example)
+            )
+        )
         
         # Print results
         print("\nTraining Results:")
         print(f"Metrics: {metrics}")
         print("\nClassification Report:")
         print(classification_report(y_val, model.predict(X_val)))
+        
+        print("\nModel Input Example:")
+        print(input_example)
 
 if __name__ == "__main__":
     main() 

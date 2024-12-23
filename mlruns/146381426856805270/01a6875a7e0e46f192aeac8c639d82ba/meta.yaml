@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/146381426856805270/01a6875a7e0e46f192aeac8c639d82ba/artifacts
+end_time: 1734995198421
+entry_point_name: ''
+experiment_id: '146381426856805270'
+lifecycle_stage: active
+run_id: 01a6875a7e0e46f192aeac8c639d82ba
+run_name: beautiful-panda-902
+run_uuid: 01a6875a7e0e46f192aeac8c639d82ba
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734995193135
+status: 3
+tags: []
+user_id: vscode
