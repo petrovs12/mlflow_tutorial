@@ -31,4 +31,5 @@ RUN pip install --user --no-cache-dir \
     pytest \
     black \
     isort \
-    mypy
+    mypy \
+    redis

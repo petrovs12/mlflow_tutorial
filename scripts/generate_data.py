@@ -3,33 +3,37 @@ import pandas as pd
 from datetime import datetime, timedelta
 import os
 
-def generate_synthetic_data(n_samples: int = 1000) -> tuple[pd.DataFrame, pd.DataFrame]:
+def generate_synthetic_data(n_samples: int = 10000) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Generate synthetic time series data for ML training
+    Generate synthetic time series data for ML training with recent timestamps
     
     Returns:
     - Training data (80% of samples)
     - Test data (20% of samples)
     """
-    # Generate timestamps
+    # Generate recent timestamps (between now and 3 days ago)
     end_date: datetime = datetime.now()
-    start_date: datetime = end_date - timedelta(days=n_samples)
-    dates: pd.DatetimeIndex = pd.date_range(start=start_date, end=end_date, periods=n_samples)
+    start_date: datetime = end_date - timedelta(days=3)
+    
+    # Generate random timestamps between start_date and end_date
+    timestamps = pd.to_datetime([
+        start_date + (end_date - start_date) * random_val
+        for random_val in np.random.random(n_samples)
+    ])
+    timestamps = sorted(timestamps)  # Sort timestamps for better visualization
     
     # Generate feature data
     data: dict = {
-        'timestamp': dates,
-        'customer_id': np.random.randint(1, 100, n_samples),
+        'event_timestamp': timestamps,
+        'created_timestamp': [datetime.now()] * n_samples,  # Current time for all rows
+        'customer_id': np.random.randint(1, 10, n_samples),
         'transaction_amount': np.random.normal(100, 30, n_samples),
         'num_items': np.random.randint(1, 10, n_samples),
-        'store_id': np.random.randint(1, 50, n_samples),
+        'store_id': np.random.randint(1, 5, n_samples),
+        'seasonal_factor': np.sin(2 * np.pi * np.arange(n_samples) / (3 * 24)) * 10  # 3-day seasonality
     }
     
-    # Add some seasonal patterns
-    data['seasonal_factor'] = np.sin(2 * np.pi * np.arange(n_samples) / 365.25) * 10
-    
-    # Generate target variable (e.g., customer will make purchase next week)
-    # Target is influenced by transaction_amount, num_items, and seasonal_factor
+    # Generate target
     target = (
         0.3 * data['transaction_amount'] / 100 +
         0.2 * data['num_items'] +
@@ -61,16 +65,13 @@ def save_data(train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
     train_path: str = os.path.join(feature_store_data_dir, "train_data.parquet")
     test_path: str = os.path.join(feature_store_data_dir, "test_data.parquet")
     
-    # Add created timestamp for Feast
-    train_df['created'] = pd.Timestamp.now()
-    test_df['created'] = pd.Timestamp.now()
-    
     train_df.to_parquet(train_path, index=False)
     test_df.to_parquet(test_path, index=False)
     
     print(f"Data saved to {feature_store_data_dir}")
     print(f"Training samples: {len(train_df)}")
     print(f"Test samples: {len(test_df)}")
+    print(f"\nTimestamp range: {train_df['event_timestamp'].min()} to {train_df['event_timestamp'].max()}")
 
 if __name__ == "__main__":
     # Generate data

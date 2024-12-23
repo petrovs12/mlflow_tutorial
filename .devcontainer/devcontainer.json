@@ -18,7 +18,12 @@
 	"forwardPorts": [
 		5432,  // PostgreSQL
 		9000,  // Model endpoint
-		6566   // Feast serving
+		6566,  // Feast serving
+		6379   // Redis
 	],
-	"remoteUser": "vscode"
+	"remoteUser": "vscode",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	"postStartCommand": "docker run -d --name redis-server -p 6379:6379 redis:latest"
 }

@@ -22,8 +22,8 @@ project: Project = Project(
 transaction_source: FileSource = FileSource(
     name="transaction_stats_source",
     path="data/train_data.parquet",
-    timestamp_field="timestamp",
-    created_timestamp_column="created",
+    timestamp_field="event_timestamp",
+    created_timestamp_column="created_timestamp",
 )
 
 # Define entities
@@ -43,7 +43,7 @@ store: Entity = Entity(
 transaction_stats: FeatureView = FeatureView(
     name="transaction_stats",
     entities=[customer, store],
-    ttl=timedelta(days=90),
+    ttl=timedelta(days=3),
     schema=[
         Field(name="transaction_amount", dtype=Float32),
         Field(name="num_items", dtype=Int64),
