@@ -26,5 +26,5 @@
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
 	},
-	"postStartCommand": "docker run -d --name redis-server -p 6379:6379 redis:latest"
+	"postStartCommand": "docker run -d --name redis-server-mlops-combo -p 6379:6379 redis:latest"
 }
