@@ -6,5 +6,5 @@ mlflow
 feast
 seldon-core
 joblib
-tensorflow
+pyre-check
 tornado>=6.1

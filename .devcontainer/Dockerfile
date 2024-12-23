@@ -20,13 +20,11 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user and switch to it
-RUN useradd -m -s /bin/bash vscode \
-    && chown -R vscode:vscode /opt/conda
-
-# Install Python packages globally
+# Switch to vscode user for pip installations
 USER vscode
 ENV PATH="/home/vscode/.local/bin:${PATH}"
+
+# Install Python packages globally
 RUN pip install --user --no-cache-dir \
     feast[redis,postgres] \
     great-expectations \
