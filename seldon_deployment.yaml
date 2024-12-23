@@ -1,28 +1,16 @@
 apiVersion: machinelearning.seldon.io/v1
 kind: SeldonDeployment
 metadata:
-  name: mlops-model-deployment
+  name: sklearn-model
 spec:
   predictors:
-  - name: default
-    replicas: 1
-    graph:
-      name: sklearn-model
-      implementation: SKLEARN_SERVER
-      modelUri: gs://your-bucket/models/sklearn_model
-    componentSpecs:
+  - componentSpecs:
     - spec:
         containers:
-        - name: sklearn-model
+        - name: classifier
           image: your-docker-repo/sklearn_model:latest
-  - name: statsmodels-model
-    replicas: 1
     graph:
-      name: statsmodels-model
-      implementation: MLFLOW_SERVER
-      modelUri: gs://your-bucket/models/statsmodels_model
-    componentSpecs:
-    - spec:
-        containers:
-        - name: statsmodels-model
-          image: your-docker-repo/statsmodels_model:latest
+      name: classifier
+      type: MODEL
+    name: default
+    replicas: 1

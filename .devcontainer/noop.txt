@@ -1,0 +1,2 @@
+# This file is intentionally empty
+# It exists so the COPY command in Dockerfile doesn't fail when environment.yml is missing

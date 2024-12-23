@@ -1,0 +1,24 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/miniconda-postgres
+{
+	"name": "ML Project with Feast",
+	"dockerFile": "Dockerfile",
+	"context": "..",
+	"runArgs": ["--init"],
+	"postCreateCommand": "pip install -r requirements.txt",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-toolsai.jupyter"
+			]
+		}
+	},
+	"forwardPorts": [
+		5432,  // PostgreSQL
+		9000,  // Model endpoint
+		6566   // Feast serving
+	],
+	"remoteUser": "vscode"
+}
