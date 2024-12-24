@@ -1,99 +1,124 @@
-# MLOps Project
+# MLOps Project with Feast and MLflow
 
-This repository demonstrates best practices in Machine Learning Operations (MLOps) using tools like Feast, MLflow, and Seldon Core. The project is containerized with Docker to ensure reproducibility and ease of deployment.
+This project demonstrates a machine learning workflow using Feast for feature management and MLflow for experiment tracking.
 
-## Table of Contents
+## Project Setup
 
-- [Prerequisites](#prerequisites)
-- [Setup](#setup)
-- [Data Ingestion and Feature Engineering](#data-ingestion-and-feature-engineering)
-- [Model Training and Experiment Tracking](#model-training-and-experiment-tracking)
-- [Model Deployment](#model-deployment)
-- [Running with Docker](#running-with-docker)
-- [Documentation](#documentation)
+### 1. Development Environment Setup
 
-## Prerequisites
+The project uses VS Code Dev Containers for a consistent development environment. The container includes:
+- Python environment with required packages
+- Redis for Feast online store
+- MLflow tracking server
 
-- Python 3.9+
-- Docker
-- Kubernetes cluster (for Seldon Core)
-- MLflow server
-- Feast Feature Store
+To start:
+1. Open the project in VS Code
+2. Install the "Remote - Containers" extension
+3. Click "Reopen in Container" when prompted
+4. The container will automatically:
+   - Install all dependencies
+   - Start Redis server on port 6379
 
-## Setup
+### 2. Feature Store Setup
 
-1. **Clone the repository:**
+The project uses Feast for feature management. Here's how to set up the feature store:
 
-    ```bash
-    git clone https://github.com/your-username/mlops-project.git
-    cd mlops-project
-    ```
+```bash
+# Generate synthetic data
+python scripts/generate_data.py
 
-2. **Install dependencies:**
+# Apply Feast configuration
+cd feature_store
+feast apply
+cd ..
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+# Test Feast setup
+python scripts/test_feast.py
+```
 
-3. **Configure MLflow:**
+The data generation creates:
+- Recent timestamps (last 3 days)
+- Customer transactions
+- Store information
+- Target variables for prediction
 
-    Ensure that the MLflow tracking server is running and update the `mlflow_tracking.py` with the correct tracking URI.
+### 3. MLflow Setup
 
-4. **Configure Feast:**
+MLflow is used for experiment tracking. To start:
 
-    Initialize and apply Feast configurations.
+```bash
+# Start MLflow server (in a separate terminal)
+python scripts/manage_mlflow.py
 
-    ```bash
-    feast init
-    feast apply
-    ```
+# To stop MLflow server if needed
+python scripts/manage_mlflow.py stop
+```
 
-## Data Ingestion and Feature Engineering
+The MLflow UI will be available at: http://localhost:5000
 
-1. **Ingest Data:**
+### 4. Training and Experiment Tracking
 
-    ```bash
-    python data_ingestion.py
-    ```
+To train models and track experiments:
 
-2. **Feature Engineering:**
+```bash
+# Train a single model
+python scripts/train_model.py
 
-    ```bash
-    python feature_engineering.py
-    ```
+# Run multiple experiments (10 runs with different parameters)
+python scripts/run_experiments.py
+```
 
-## Model Training and Experiment Tracking
+To load and use a trained model:
+```bash
+python scripts/load_model.py
+```
 
-1. **Train Models and Track with MLflow:**
+## Project Structure
 
-    ```bash
-    python train_models.py
-    python mlflow_tracking.py
-    ```
+```
+project_root/
+├── .devcontainer/              # Development container configuration
+│   ├── Dockerfile             # Container definition
+│   └── devcontainer.json      # Dev container settings
+├── feature_store/             # Feast configuration
+│   ├── data/                  # Generated feature data
+│   ├── feature_store.yaml     # Feast configuration
+│   └── features.py           # Feature definitions
+├── scripts/
+│   ├── generate_data.py      # Data generation script
+│   ├── test_feast.py         # Feast testing script
+│   ├── manage_mlflow.py      # MLflow server management
+│   ├── train_model.py        # Model training script
+│   ├── run_experiments.py    # Multiple experiment runner
+│   └── load_model.py         # Model loading utility
+└── requirements.txt          # Python dependencies
+```
 
-## Model Deployment
+## Key Features
 
-1. **Build Docker Images:**
+1. **Feature Store (Feast)**
+   - Online and offline feature serving
+   - Redis-based online store
+   - File-based offline store
+   - Recent data with 3-day window
 
-    ```bash
-    docker build -t your-docker-repo/sklearn_model:latest -f Dockerfile .
-    docker build -t your-docker-repo/statsmodels_model:latest -f Dockerfile .
-    ```
+2. **Experiment Tracking (MLflow)**
+   - Model metrics tracking
+   - Feature importance visualization
+   - Cross-validation results
+   - Model artifacts storage
+   - Easy model loading and serving
 
-2. **Push Docker Images:**
+3. **Model Training**
+   - RandomForest classifier
+   - Cross-validation
+   - Feature importance analysis
+   - Multiple experiment runs
 
-    ```bash
-    docker push your-docker-repo/sklearn_model:latest
-    docker push your-docker-repo/statsmodels_model:latest
-    ```
+## Notes
 
-3. **Deploy with Seldon Core:**
-
-    ```bash
-    kubectl apply -f seldon_deployment.yaml
-    ```
-
-## Running with Docker
-
-To run the entire project using Docker, ensure that all services like MLflow and Feast are accessible from within the Docker container.
+- The Redis server is automatically started in the development environment
+- MLflow server must be running to track experiments
+- Feature data is generated with recent timestamps for proper online serving
+- All scripts use proper type hints and error handling
 
