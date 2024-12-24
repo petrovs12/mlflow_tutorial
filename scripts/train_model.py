@@ -130,6 +130,15 @@ def main(run_id: int = 0) -> None:
         print(classification_report(y_val, model.predict(X_val)))
 
 if __name__ == "__main__":
-    import sys
-    run_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    import mlflow
+    
+    # Get all existing runs
+    runs = mlflow.search_runs(experiment_names=["retail_prediction"])
+    existing_run_ids = set()
+    
+    # Extract run IDs from run names
+    for run in runs.itertuples():
+        try:
+            run_name = run.tags['mlflow.runName']
+            if len(sys.argv) > 1 else 0
     main(run_id) 
